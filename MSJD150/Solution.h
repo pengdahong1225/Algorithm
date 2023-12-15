@@ -78,6 +78,8 @@ public:
     int maxDepth(TreeNode* root);
     // 100. 相同的树
     bool isSameTree(TreeNode* p, TreeNode* q);
+    // 226. 翻转二叉树
+    TreeNode* invertTree(TreeNode* root);
 
     /// 回溯/分治
 public:
