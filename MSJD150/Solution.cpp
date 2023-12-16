@@ -549,7 +549,7 @@ int Solution::movingCount(int m, int n, int k) {
 }
 
 bool Solution::isSymmetric(TreeNode *root) {
-    
+
     return false;
 }
 
