@@ -5,6 +5,7 @@
 #include "Solution.h"
 #include <map>
 #include <unordered_map>
+#include <unordered_set>
 #include <stack>
 #include <string>
 #include <queue>
@@ -277,10 +278,281 @@ bool Solution::isSameTree(TreeNode *p, TreeNode *q) {
     return false;
 }
 
-TreeNode *Solution::invertTree(TreeNode *root) {
 
-    return nullptr;
+void help_invertTree(TreeNode *root, TreeNode *src) {
+    if (src == nullptr) {
+        return;
+    }
+    root = new(TreeNode);
+    root->val = src->val;
+    // 右
+    help_invertTree(root->left, src->right);
+    // 左
+    help_invertTree(root->right, src->left);
 }
+
+TreeNode *Solution::invertTree(TreeNode *root) {
+    // 前序遍历并交换左右子树
+    if (root == nullptr) {
+        return root;
+    }
+
+    TreeNode *node = root->right;
+    root->right = root->left;
+    root->left = node;
+
+    invertTree(root->left);
+    invertTree(root->right);
+
+    return root;
+}
+
+TreeNode *Solution::lowestCommonAncestor_2(TreeNode *root, TreeNode *p, TreeNode *q) {
+    if (root == nullptr || root == p || root == q)
+        return root;
+    TreeNode *left = lowestCommonAncestor_2(root->left, p, q);
+    TreeNode *right = lowestCommonAncestor_2(root->right, p, q);
+    if (left == nullptr && right == nullptr)
+        return nullptr;
+    else if (left == nullptr && right != nullptr)
+        return right;
+    else if (left != nullptr && right == nullptr)
+        return left;
+    return root;
+}
+
+TreeNode *Solution::lowestCommonAncestor(TreeNode *root, TreeNode *p, TreeNode *q) {
+    while (root != nullptr) {
+        if (p->val > root->val && q->val > root->val)
+            root = root->right;
+        else if (p->val < root->val && q->val < root->val)
+            root = root->left;
+        else
+            break;
+    }
+    return root;
+}
+
+int Solution::kthLargest(TreeNode *root, int k) {
+    std::stack<TreeNode *> Nodestack;
+    while (!Nodestack.empty() || root != nullptr) {
+        while (root != nullptr) {
+            Nodestack.push(root);
+            root = root->right;
+        }
+        if (!Nodestack.empty()) {
+            root = Nodestack.top();
+            Nodestack.pop();
+            if (k == 1)
+                return root->val;
+            root = root->left;
+            k--;
+        }
+    }
+    return 0;
+}
+
+int Solution::GetSum(int i, int j) {
+    int sum = 0;
+    while (i != 0) {
+        sum += i % 10;
+        i /= 10;
+    }
+    while (j != 0) {
+        sum += j % 10;
+        j /= 10;
+    }
+    return sum;
+}
+
+void Solution::dfs(int i, int j, int &m, int &n, int &k, vector<vector<bool>> &flag) {
+    if (i < 0 || i >= m || j < 0 || j >= n || flag[i][j] || GetSum(i, j) > k)
+        return;
+    else if (GetSum(i, j) <= k)
+        count++;
+    flag[i][j] = true;
+    dfs(i - 1, j, m, n, k, flag);
+    dfs(i + 1, j, m, n, k, flag);
+    dfs(i, j - 1, m, n, k, flag);
+    dfs(i, j + 1, m, n, k, flag);
+    /*回溯的时候不能把flag复位，因为题目是计算格子数，而不是计算路径数*/
+}
+
+void Solution::insertSort(vector<int> &arr) {
+    int len = arr.size();
+    for (int i = 1; i < len; i++) {
+        int key = arr[i];
+        int j = i - 1;
+        while (j >= 0 && arr[j] > key) {
+            arr[j + 1] = arr[j];
+            j--;
+        }
+        arr[j + 1] = key;
+    }
+}
+
+void Solution::dfs(TreeNode *root, vector<int> &arr) {
+    if (root == nullptr)
+        return;
+    std::stack<TreeNode *> nodeStack;
+    nodeStack.push(root);
+    while (!nodeStack.empty()) {
+        TreeNode *node = nodeStack.top();
+        nodeStack.pop();
+        arr.push_back(node->val);
+        if (node->right != nullptr)
+            nodeStack.push(node->right);
+        if (node->left != nullptr)
+            nodeStack.push(node->left);
+    }
+}
+
+vector<int> Solution::getAllElements(TreeNode *root1, TreeNode *root2) {
+    vector<int> ans;
+    dfs(root1, ans);
+    dfs(root2, ans);
+    insertSort(ans);
+    return ans;
+}
+
+bool Solution::dfs(vector<vector<char>> &board, string &word, int pos, int i, int j) {
+    /* 剪枝 */
+    if (i < 0 || j < 0 || i >= board.size() || j >= board[0].size() || board[i][j] != word[pos])
+        return false;
+    if (board[i][j] == word[pos] && pos == word.size() - 1)
+        return true;
+    board[i][j] = '\0';
+    bool res = dfs(board, word, pos + 1, i - 1, j) || dfs(board, word, pos + 1, i, j - 1) ||
+               dfs(board, word, pos + 1, i + 1, j) || dfs(board, word, pos + 1, i, j + 1);
+    board[i][j] = word[pos];
+    return res;
+}
+
+bool Solution::exist(vector<vector<char>> &board, string word) {
+    /* dfs+剪枝 */
+    int rows = board.size();
+    int cols = board[0].size();
+    /* 每个格子都做一次起点开启dfs */
+    for (int i = 0; i < rows; i++) {
+        for (int j = 0; j < cols; j++) {
+            if (dfs(board, word, 0, i, j))
+                return true;
+        }
+    }
+    return dfs(board, word, 0, 0, 0);
+}
+
+vector<int> Solution::luckyNumbers(vector<vector<int>> &matrix) {
+    vector<int> rowMinlist;
+    vector<int> colMaxlist;
+    /*找每一行的最小元素*/
+    for (int i = 0; i < matrix.size(); i++) {
+        int min = matrix[i][0];
+        for (int j = 0; j < matrix[i].size(); j++) {
+            if (matrix[i][j] < min)
+                min = matrix[i][j];
+        }
+        rowMinlist.push_back(min);
+    }
+    /*找每一列的最大元素*/
+    for (int i = 0; i < matrix[0].size(); i++) {
+        int max = matrix[0][i];
+        for (int j = 0; j < matrix.size(); j++) {
+            if (matrix[j][i] > max)
+                max = matrix[j][i];
+        }
+        colMaxlist.push_back(max);
+    }
+    /*找公共元素*/
+    vector<int> ans;
+    for (int i: rowMinlist) {
+        for (int j: colMaxlist) {
+            if (i == j)
+                ans.push_back(i);
+        }
+    }
+    return ans;
+}
+
+vector<string> Solution::permutation(string s) {
+    dfs(s, 0);
+    return ans;
+}
+
+void Solution::dfs(string &s, int index) {
+    if (index == s.size() - 1) {
+        ans.push_back(s);
+        return;
+    }
+    std::set<char> set;
+    for (int i = index; i < s.size(); i++) {
+        if (set.find(s[i]) != set.end()) //剪枝
+            continue;
+        set.insert(s[i]);          //此位次字符已经使用过了
+        std::swap(s[i], s[index]); //交换位
+        dfs(s, index + 1);         //开启固定第 x + 1 位字符
+        std::swap(s[i], s[index]); //复位
+    }
+}
+
+int Solution::strStr(string haystack, string needle) {
+    if (haystack.empty() || needle.empty() || haystack.size() < needle.size())
+        return 0;
+    int first = 0, second;
+    while (first < haystack.size()) {
+        second = 0;
+        if (haystack[first] == needle[second]) {
+            /*进入判断*/
+            for (int i = first; i < haystack.size(); i++) {
+                if (haystack[i] == needle[second]) {
+                    if (second != needle.size() - 1) {
+                        second++;
+                    } else
+                        return first;
+                } else
+                    break;
+            }
+        }
+        first++;
+    }
+    return -1;
+}
+
+bool Solution::isIsomorphic(string s, string t) {
+    if (s.size() != t.size())
+        return false;
+    std::unordered_map<char, char> Map;
+    std::unordered_set<char> Set;
+    for (int i = 0; i < s.size(); i++) {
+        if (Map.count(s[i]) <= 0) {
+            if (Set.count(t[i]) <= 0) { /*判断该值是否被映射过*/
+                Map[s[i]] = t[i];
+                Set.insert(t[i]);
+            } else
+                return false;
+        } else {
+            auto it = Map.find(s[i]);
+            if (t[i] != it->second)
+                return false;
+        }
+    }
+    return true;
+}
+
+int Solution::movingCount(int m, int n, int k) {
+    if (k <= 0)
+        return 0;
+    count = 1;
+    vector<vector<bool>> flag(m, vector<bool>(n, true));
+    dfs(0, 0, m, n, k, flag);
+    return count;
+}
+
+bool Solution::isSymmetric(TreeNode *root) {
+    
+    return false;
+}
+
 
 
 

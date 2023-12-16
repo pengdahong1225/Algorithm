@@ -50,16 +50,16 @@ public:
         dp[0] = 0;
         for (int i = 1; i <= amount; ++i)
         { //用于遍历dp
-            dp[i] = INT_MAX;
+            dp[i] = INT32_MAX;
             for (int j = 0; j < coin_list.size(); ++j)
             { //遍历硬币列表2,5,7
-                if (i >= coin_list[j] && dp[i - coin_list[j]] != INT_MAX)
+                if (i >= coin_list[j] && dp[i - coin_list[j]] != INT32_MAX)
                 { // INT_MAX+1会溢出
                     dp[i] = std::min(dp[i - coin_list[j]] + 1, dp[i]);
                 }
             }
         }
-        if (dp[amount == INT_MAX])
+        if (dp[amount == INT32_MAX])
         {
             return -1;
         }
