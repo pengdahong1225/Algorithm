@@ -71,6 +71,10 @@ public:
     TreeNode *invertTree(TreeNode *root);
     // 101. 对称二叉树
     bool isSymmetric(TreeNode* root);
+    bool dfs(TreeNode* left, TreeNode* right);
+    // 105. 从前序与中序遍历序列构造二叉树
+    TreeNode* buildTree(vector<int>& preorder, vector<int>& inorder);
+    void buildTreeHelp(TreeNode* root, vector<int>& preorder, vector<int> inorder);
 
     /// 回溯/分治
 public:

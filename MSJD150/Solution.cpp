@@ -9,6 +9,7 @@
 #include <stack>
 #include <string>
 #include <queue>
+#include <deque>
 
 void Solution::merge(std::vector<int> &nums1, int m, std::vector<int> &nums2, int n) {
     // 双指针
@@ -549,8 +550,47 @@ int Solution::movingCount(int m, int n, int k) {
 }
 
 bool Solution::isSymmetric(TreeNode *root) {
+    // 递归
+    if (root == nullptr) {
+        return true;
+    }
+    return dfs(root->left, root->right);
+}
 
-    return false;
+bool Solution::dfs(TreeNode *left, TreeNode *right) {
+    if (left == nullptr && right == nullptr) {
+        return true;
+    }
+    if (left == nullptr || right == nullptr || left->val != right->val) {
+        return false;
+    }
+    return dfs(left->left, right->right) && dfs(left->right, right->left);
+}
+
+TreeNode *Solution::buildTree(vector<int> &preorder, vector<int> &inorder) {
+    TreeNode *root = nullptr;
+    buildTreeHelp(root, preorder, inorder);
+    return root;
+}
+
+void Solution::buildTreeHelp(TreeNode *root, vector<int> &preorder, vector<int> inorder) {
+    if (preorder.empty()) {
+        return;
+    }
+    int pivot = preorder[0];
+    preorder.erase(preorder.begin());
+    // 切割中序
+    root = new TreeNode(pivot);
+
+    int position = 0;
+    for (int i = 0; i < inorder.size(); i++) {
+        if (pivot == inorder[i]) {
+            position = i;
+            break;
+        }
+    }
+    buildTreeHelp(root, preorder, {inorder.begin(), inorder.begin() + position});
+    buildTreeHelp(root, preorder, {inorder.begin() + position + 1, inorder.end()});
 }
 
 
