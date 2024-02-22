@@ -19,11 +19,13 @@ void Solution::merge(std::vector<int> &nums1, int m, std::vector<int> &nums2, in
         if (nums1[p1] <= nums2[p2]) {
             ret.emplace_back(nums1[p1]);
             p1++;
-        } else {
+        }
+        else {
             ret.emplace_back(nums2[p2]);
             p2++;
         }
     }
+    // 最后再考虑没有合并完的部分
     while (p1 < m) {
         ret.emplace_back(nums1[p1]);
         p1++;
@@ -39,16 +41,19 @@ int Solution::removeElement(std::vector<int> &nums, int val) {
     // 双指针，头尾交换
     int left = 0, right = nums.size() - 1;
     while (left <= right) {
+        // left位置的值等于val，就把后面的值拿过来，否则就left++
         if (nums[left] == val) {
             nums[left] = nums[right];
             right--;
-        } else {
+        }
+        else {
             left++;
         }
     }
     return left;
 }
 
+// 0,0,1,1,1,2,2,3,3,4
 int Solution::removeDuplicates(std::vector<int> &nums) {
     // 双指针(快慢指针)
     if (nums.size() < 2) {
@@ -58,8 +63,9 @@ int Solution::removeDuplicates(std::vector<int> &nums) {
     while (right < nums.size()) {
         if (nums[left] == nums[right]) {
             right++;
-        } else {
-            // 发现不一样的元素，替换
+        }
+        else {
+            // 发现不一样的元素，保留left位置的val，替换left下一个位置的val，`替换不是交换`
             if (right - left > 0) {
                 left++;
                 nums[left] = nums[right];
@@ -97,13 +103,15 @@ void Solution::rotate(vector<int> &nums, int k) {
     }
 }
 
+// [7,1,5,3,6,4]
 int Solution::maxProfit(vector<int> &prices) {
-    // 找到最小价格和最大利润 即可
+    // 遍历查找最大利润：最小价格不是固定的，随着遍历可能会出现更小的，所以要记录
     int min_price = prices[0], max_profit = 0;
     for (int price: prices) {
         if (price < min_price) {
             min_price = price;
         }
+        // todo 最大利润就是 当前价格 减 当前的最小价格
         if (price - min_price > max_profit) {
             max_profit = price - min_price;
         }
@@ -127,7 +135,8 @@ int Solution::maxProfit_2(vector<int> &prices) {
                 profit += temp_profit.top();
                 temp_profit.pop();
             }
-        } else {
+        }
+        else {
             // 记录当日收益
             temp_profit.push(diff);
         }
@@ -190,9 +199,11 @@ vector<int> Solution::twoSum(vector<int> &numbers, int target) {
             int mid = (left + right) / 2;
             if (numbers[mid] == num) {
                 return {i + 1, mid + 1};
-            } else if (numbers[mid] > num) {
+            }
+            else if (numbers[mid] > num) {
                 right = mid - 1;
-            } else {
+            }
+            else {
                 left = mid + 1;
             }
         }
@@ -255,10 +266,13 @@ int Solution::maxDepth(TreeNode *root) {
     return max(maxDepth(root->left), maxDepth(root->right)) + 1;
 }
 
+// [2,3,1,1,4]
 bool Solution::canJump(vector<int> &nums) {
     // 可以到达的最远位置，直接遍历
     int reach = 0;
+    // i就是当前位置
     for (int i = 0; i < nums.size(); i++) {
+        // 跳不到了
         if (i > reach) {
             return false;
         }
@@ -508,9 +522,11 @@ int Solution::strStr(string haystack, string needle) {
                 if (haystack[i] == needle[second]) {
                     if (second != needle.size() - 1) {
                         second++;
-                    } else
+                    }
+                    else
                         return first;
-                } else
+                }
+                else
                     break;
             }
         }
@@ -529,9 +545,11 @@ bool Solution::isIsomorphic(string s, string t) {
             if (Set.count(t[i]) <= 0) { /*判断该值是否被映射过*/
                 Map[s[i]] = t[i];
                 Set.insert(t[i]);
-            } else
+            }
+            else
                 return false;
-        } else {
+        }
+        else {
             auto it = Map.find(s[i]);
             if (t[i] != it->second)
                 return false;
